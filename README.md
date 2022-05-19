@@ -83,3 +83,22 @@ onnx.save(gs.export_onnx(graph), "model.onnx")
 ```
 ![Screen Shot 2022-05-19 at 8 44 36 PM](https://user-images.githubusercontent.com/19248035/169285760-4756877e-db5c-4f24-974b-788c611cc3ef.png)
 
+```python
+import onnx_graphsurgeon as gs
+import numpy as np
+import onnx
+
+model = onnx.load("model.onnx")
+graph = gs.import_onnx(model)
+
+tensors = graph.tensors()
+
+graph.inputs = [tensors["x1"].to_variable(dtype=np.float32)]
+graph.outputs = [tensors["add_out"].to_variable(dtype=np.float32)]
+
+graph.cleanup()
+
+onnx.save(gs.export_onnx(graph), "subgraph.onnx")
+```
+
+![subgraph](https://github.com/NVIDIA/TensorRT/raw/main/tools/onnx-graphsurgeon/examples/resources/03_subgraph.onnx.png)
