@@ -44,3 +44,42 @@ onnx.save(gs.export_onnx(graph), "test_conv.onnx")
 ```
 
 ![onnx2](https://user-images.githubusercontent.com/19248035/169283872-4cd30ffd-7f91-4e08-b860-54f950521fc2.png)
+
+## Isolating A Subgraph
+
+First, let's generate an onnx file; The generated model computes `Y = x0 + (a * x1 + b)`:
+```python
+import onnx_graphsurgeon as gs
+import numpy as np
+import onnx
+
+# Computes Y = x0 + (a * x1 + b)
+
+shape = (1, 3, 224, 224)
+# Inputs
+x0 = gs.Variable(name="x0", dtype=np.float32, shape=shape)
+x1 = gs.Variable(name="x1", dtype=np.float32, shape=shape)
+
+# Intermediate tensors
+a = gs.Constant("a", values=np.ones(shape=shape, dtype=np.float32))
+b = gs.Constant("b", values=np.ones(shape=shape, dtype=np.float32))
+mul_out = gs.Variable(name="mul_out")
+add_out = gs.Variable(name="add_out")
+
+# Outputs
+Y = gs.Variable(name="Y", dtype=np.float32, shape=shape)
+
+nodes = [
+    # mul_out = a * x1
+    gs.Node(op="Mul", inputs=[a, x1], outputs=[mul_out]),
+    # add_out = mul_out + b
+    gs.Node(op="Add", inputs=[mul_out, b], outputs=[add_out]),
+    # Y = x0 + add
+    gs.Node(op="Add", inputs=[x0, add_out], outputs=[Y]),
+]
+
+graph = gs.Graph(nodes=nodes, inputs=[x0, x1], outputs=[Y])
+onnx.save(gs.export_onnx(graph), "model.onnx")
+```
+![Screen Shot 2022-05-19 at 8 44 36 PM](https://user-images.githubusercontent.com/19248035/169285760-4756877e-db5c-4f24-974b-788c611cc3ef.png)
+
