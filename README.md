@@ -102,3 +102,5 @@ onnx.save(gs.export_onnx(graph), "subgraph.onnx")
 ```
 
 ![subgraph](https://github.com/NVIDIA/TensorRT/raw/main/tools/onnx-graphsurgeon/examples/resources/03_subgraph.onnx.png)
+
+[More](https://github.com/NVIDIA/TensorRT/tree/main/tools/onnx-graphsurgeon/examples/04_modifying_a_model)
